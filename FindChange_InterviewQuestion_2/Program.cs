@@ -10,6 +10,9 @@ namespace FindChange_InterviewQuestion_2
     {
         static void Main(string[] args)
         {
+            string pathToFile = @"C:\Users\User\Desktop\InterviewQuestions\classifierHOG.mat";
+            FileState fs = new FileState(pathToFile, 4 * 1024 * 1024);
+            fs.GenerateStateFile();
         }
     }
 }
