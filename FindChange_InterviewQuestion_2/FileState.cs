@@ -34,19 +34,17 @@ namespace FindChange_InterviewQuestion_2
         #region PUBLIC_METHODS
         /// <summary>
         /// Creates a state file for the tracked file.
-        /// state is basically a table with byte index in tracked file with the value in that byte
-        /// if neighbouring bytes are of the same value, function goesin each direction and searches
-        /// for the first non equal byte
+        /// state is a key value pair containing each interval in the desired resolution
+        /// and the appropriate md5 hash for that interval
         /// </summary>
         public void GenerateStateFile()
         {
-            long        startPos            = 0;
-            long        endPos              = fileSizeBytes;
-            long        localStartPos;
-            long        localEndPos;
+            long            startPos            = 0;
+            long            endPos              = fileSizeBytes;
+            long            localStartPos;
+            long            localEndPos;
 
-
-            using (var fileStateStream = new StreamWriter(pathToStateFile))
+            using (var fileStateStream = new FileStream(pathToStateFile, FileMode.Create))
             {
                 using (var fileStream = new FileStream(pathToFile, FileMode.Open))
                 {
@@ -60,19 +58,72 @@ namespace FindChange_InterviewQuestion_2
                         fileStream.Read(currReadBuffer, 0, (int)(localEndPos - localStartPos));
 
                         byte[]      currBufferHash      = GenerateHash(currReadBuffer);
-                        string      hashAsString        = Encoding.UTF8.GetString(currBufferHash);
 
-                        string currBufferOutputStream = localStartPos.ToString() + "," + localEndPos.ToString() + "," +
-                                                    hashAsString;
-
-                        byte[] currBufferOutputArray = Encoding.ASCII.GetBytes(currBufferOutputStream);
-
-
-                        fileStateStream.WriteLine(currBufferOutputStream);
+                        fileStateStream.Write(currBufferHash, 0, currBufferHash.Length);
                     }
                 }
             }
         }
+
+        public List<byte[]> ReadStateFile()
+        {
+            List<byte[]>    stateFileHash       = new List<byte[]>();
+            long            currByteIndex       = 0;
+            byte[]          currHash;
+            FileInfo        stateFileInf        = new FileInfo(pathToStateFile);
+
+            using (var fileStream = new FileStream(pathToStateFile, FileMode.Open))
+            {
+                for (currByteIndex = 0; currByteIndex < stateFileInf.Length; currByteIndex += 128)
+                {
+                    fileStream.Position = currByteIndex;
+                    currHash = new byte[128];
+                    fileStream.Read(currHash, 0, 128);          // TODO: CHECK IF CHANGE 128 FROM HARD CODED
+                    stateFileHash.Add(currHash);
+                }
+            }
+            return stateFileHash;
+        }
+
+        public List<byte[]> FindCurrentState()
+        {
+            List<byte[]>    currStateHash       = new List<byte[]>();
+            long            startPos            = 0;
+            long            endPos              = fileSizeBytes;
+
+            long            localStartPos;
+            long            localEndPos;
+
+
+            // Checking if a state file exist - if not, first run, everything is different
+            if (!File.Exists(pathToStateFile))
+            {
+                for (long i = startPos; i <= endPos; i = i + stateResolution)
+                {
+                    Console.WriteLine("{0} - {1}: Change", i, i+stateResolution);
+                }
+            }
+
+
+            using (var fileStream = new FileStream(pathToFile, FileMode.Open))
+            {
+                for (long i = startPos; i <= endPos; i = i + stateResolution)
+                {
+                    localStartPos = i;
+                    localEndPos = i + stateResolution - 1;
+
+                    byte[]      currReadBuffer      = new byte[localEndPos - localStartPos];
+
+                    fileStream.Read(currReadBuffer, 0, (int)(localEndPos - localStartPos));
+
+                    byte[]      currBufferHash      = GenerateHash(currReadBuffer);
+                    currStateHash.Add(currBufferHash);
+                }
+            }
+
+            return currStateHash;
+        }
+        //public bool IsEqual(FileState )
         #endregion
 
 
