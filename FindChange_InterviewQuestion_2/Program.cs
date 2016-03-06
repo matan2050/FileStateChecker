@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace FindChange_InterviewQuestion_2
 {
@@ -6,15 +7,24 @@ namespace FindChange_InterviewQuestion_2
     {
         static void Main(string[] args)
         {
-            string pathToFile = @"C:\Temp\web_sim8.log";
-            FileState fs = new FileState(pathToFile, 4 * 1024 * 1024);
-            fs.GenerateState(true);
-            List<byte[]>  origHash = fs.ReadStateFile();
+            string pathToFile = @"C:\Temp\simulationComparison1.csv";
+			List<byte[]> previousState;
+			List<byte[]> currentState;
 
-            string pathToSecondFile = @"C:\Temp\web_sim5.log";
-            FileState fs2 = new FileState(pathToSecondFile, 4 * 1024 * 1024);
-            fs2.GenerateState(true);
-            List<byte[]>  editedHash = fs2.ReadStateFile();
+            FileState fs = new FileState(pathToFile, 4 * 1024 * 1024);
+
+			if (File.Exists(fs.PathToStateFile))
+			{
+				previousState = fs.ReadStateFile();
+			}
+			else
+			{
+				previousState = null;
+			}
+
+			currentState = fs.GenerateState(false);
+
+			fs.CompareHashLists(ref previousState, ref currentState);
 
         }
     }

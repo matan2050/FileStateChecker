@@ -122,7 +122,7 @@ namespace FindChange_InterviewQuestion_2
 
 				int		currHashDiff;
 
-				for (int j = 0; i < 128; j++)
+				for (int j = 0; j < 128; j++)
 				{
 					currHashDiff = (int)(currHash1Element[j] - currHash2Element[j]);
 
@@ -174,7 +174,21 @@ namespace FindChange_InterviewQuestion_2
 
             return hashCode;
         }
-        #endregion
+		#endregion
 
-    }
+
+		#region PROPERTIES
+		public string PathToStateFile
+		{
+			get
+			{
+				return PathToStateFile;
+			}
+			set
+			{
+				pathToStateFile = value;
+			}
+		}
+		#endregion
+	}
 }
