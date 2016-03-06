@@ -107,21 +107,46 @@ namespace FindChange_InterviewQuestion_2
         }
 
 
-		//public long CompareHashLists(FileState currState)
-		//{
-				
-		//}
-        #endregion
+		public long CompareHashLists(ref List<byte[]> hashSet1, ref List<byte[]> hashSet2)
+		{
+			int		hashSet1Size        = hashSet1.Count;
+			int		hashSet2Size        = hashSet2.Count;
+			int		numHashesToCheck    = Math.Min(hashSet1Size, hashSet2Size);
+
+			long    firstDiffPosition = -1;
+
+			for (int i = 0; i < numHashesToCheck; i++)
+			{
+				byte[]	currHash1Element	= hashSet1[i];
+				byte[]	currHash2Element	= hashSet2[i];
+
+				int		currHashDiff;
+
+				for (int j = 0; i < 128; j++)
+				{
+					currHashDiff = (int)(currHash1Element[j] - currHash2Element[j]);
+
+					if (currHashDiff != 0)
+					{
+						firstDiffPosition = i;
+						break;
+					}
+				}
+			}
+
+			return firstDiffPosition;
+		}
+		#endregion
 
 
-        #region PRIVATE_METHODS
+		#region PRIVATE_METHODS
 
 		/// <summary>
 		/// Takes a path string and replaces its 3 letter extension 
 		/// </summary>
 		/// <param name="filePath">string contains path with a 3 letter extension</param>
 		/// <returns>string contains the same path with the ext extension</returns>
-        private string ReplaceExtension(string filePath, string ext)
+		private string ReplaceExtension(string filePath, string ext)
         {
             string      replacedString;
             int         dotPosition         = filePath.IndexOf('.');
