@@ -20,7 +20,7 @@ namespace FindChange_InterviewQuestion_2
         public FileState(string _pathToFile, int _stateResolution)
         {
             pathToFile = _pathToFile;
-            pathToStateFile = ReplaceExtension(pathToFile);
+            pathToStateFile = ReplaceExtension(pathToFile, "stt");
 
             FileInfo f = new FileInfo(pathToFile);
 
@@ -37,14 +37,23 @@ namespace FindChange_InterviewQuestion_2
         /// state is a key value pair containing each interval in the desired resolution
         /// and the appropriate md5 hash for that interval
         /// </summary>
-        public void GenerateStateFile()
+        public List<byte[]> GenerateState(bool saveToStateFile)
         {
+			List<byte[]>    stateHashList       = new List<byte[]>();	// TODO - CREATE LIST OF KNOWN SIZE 
             long            startPos            = 0;
             long            endPos              = fileSizeBytes;
             long            localStartPos;
             long            localEndPos;
 
-            using (var fileStateStream = new FileStream(pathToStateFile, FileMode.Create))
+
+			var stateFileMode = FileMode.Create;
+			if (File.Exists(pathToStateFile))
+			{
+				stateFileMode = FileMode.Open;
+			}
+
+
+            using (var fileStateStream = new FileStream(pathToStateFile, stateFileMode))
             {
                 using (var fileStream = new FileStream(pathToFile, FileMode.Open))
                 {
@@ -57,17 +66,29 @@ namespace FindChange_InterviewQuestion_2
 
                         fileStream.Read(currReadBuffer, 0, (int)(localEndPos - localStartPos));
 
-                        byte[]      currBufferHash      = GenerateHash(currReadBuffer);
+                        stateHashList.Add(GenerateHash(currReadBuffer));
+						
 
-                        fileStateStream.Write(currBufferHash, 0, currBufferHash.Length);
+						if (saveToStateFile)
+						{
+							byte[] currHash = stateHashList[stateHashList.Count-1];
+							fileStateStream.Write(currHash, 0, currHash.Length);
+						}
                     }
                 }
             }
-        }
 
+			return stateHashList;
+		}
+
+
+		/// <summary>
+		/// Reads a predefined state file and returns all hash codes for that file
+		/// </summary>
+		/// <returns>list of byte arrays that contains hash codes</returns>
         public List<byte[]> ReadStateFile()
         {
-            List<byte[]>    stateFileHash       = new List<byte[]>();
+            List<byte[]>    stateFileHashList       = new List<byte[]>();
             long            currByteIndex       = 0;
             byte[]          currHash;
             FileInfo        stateFileInf        = new FileInfo(pathToStateFile);
@@ -79,66 +100,44 @@ namespace FindChange_InterviewQuestion_2
                     fileStream.Position = currByteIndex;
                     currHash = new byte[128];
                     fileStream.Read(currHash, 0, 128);          // TODO: CHECK IF CHANGE 128 FROM HARD CODED
-                    stateFileHash.Add(currHash);
+                    stateFileHashList.Add(currHash);
                 }
             }
-            return stateFileHash;
+            return stateFileHashList;
         }
 
-        public List<byte[]> FindCurrentState()
-        {
-            List<byte[]>    currStateHash       = new List<byte[]>();
-            long            startPos            = 0;
-            long            endPos              = fileSizeBytes;
 
-            long            localStartPos;
-            long            localEndPos;
-
-
-            // Checking if a state file exist - if not, first run, everything is different
-            if (!File.Exists(pathToStateFile))
-            {
-                for (long i = startPos; i <= endPos; i = i + stateResolution)
-                {
-                    Console.WriteLine("{0} - {1}: Change", i, i+stateResolution);
-                }
-            }
-
-
-            using (var fileStream = new FileStream(pathToFile, FileMode.Open))
-            {
-                for (long i = startPos; i <= endPos; i = i + stateResolution)
-                {
-                    localStartPos = i;
-                    localEndPos = i + stateResolution - 1;
-
-                    byte[]      currReadBuffer      = new byte[localEndPos - localStartPos];
-
-                    fileStream.Read(currReadBuffer, 0, (int)(localEndPos - localStartPos));
-
-                    byte[]      currBufferHash      = GenerateHash(currReadBuffer);
-                    currStateHash.Add(currBufferHash);
-                }
-            }
-
-            return currStateHash;
-        }
-        //public bool IsEqual(FileState )
+		//public long CompareHashLists(FileState currState)
+		//{
+				
+		//}
         #endregion
 
 
         #region PRIVATE_METHODS
-        private string ReplaceExtension(string filePath)
+
+		/// <summary>
+		/// Takes a path string and replaces its 3 letter extension 
+		/// </summary>
+		/// <param name="filePath">string contains path with a 3 letter extension</param>
+		/// <returns>string contains the same path with the ext extension</returns>
+        private string ReplaceExtension(string filePath, string ext)
         {
             string      replacedString;
             int         dotPosition         = filePath.IndexOf('.');
             string      extension           = filePath.Substring(dotPosition+1, 3);
 
-            replacedString = filePath.Replace(extension, "stt");
+            replacedString = filePath.Replace(extension, ext);
 
             return replacedString;
         }
 
+
+		/// <summary>
+		/// Generates an md5 hash code for an array of bytes
+		/// </summary>
+		/// <param name="fileContentsBuffer">byte array for which we will get a hash code</param>
+		/// <returns>a hash code in the form of a byte array</returns>
         private byte[] GenerateHash(byte[] fileContentsBuffer)
         {
             byte[] hashCode;
