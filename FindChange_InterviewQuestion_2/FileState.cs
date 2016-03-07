@@ -135,6 +135,7 @@ namespace FindChange_InterviewQuestion_2
 
 			int    firstDiffPosition = -1;
 
+            // go over all hash codes to check for difference
 			for (int i = 0; i < numHashesToCheck; i++)
 			{
 				byte[]	currHash1Element	= hashSet1[i];
@@ -143,6 +144,7 @@ namespace FindChange_InterviewQuestion_2
 				int		currHashDiff;
                 bool    firstDiffFound  = false;
 
+                // go over all hash code's elements and subtract
 				for (int j = 0; j < 16; j++)
 				{
 					currHashDiff = (int)(currHash1Element[j] - currHash2Element[j]);
@@ -161,10 +163,22 @@ namespace FindChange_InterviewQuestion_2
                 }
 			}
 
+            // if no diff found in original size, and hash lists are of different sizes,
+            // there was an addition in the end of the file
+            if ((firstDiffPosition == -1) && (hashSet1Size != hashSet2Size))
+            {
+                firstDiffPosition = hashSet1Size + 1;
+            }
+
 			return firstDiffPosition;
 		}
 
 
+        /// <summary>
+        /// Transforms position of hash code to range in bytes
+        /// </summary>
+        /// <param name="hashPosition">Hash code position as returned from comparison function</param>
+        /// <returns>Int array of byte range</returns>
         public long[] HashPositionToRange(int hashPosition)
         {
             long[]      range           = new long[2];

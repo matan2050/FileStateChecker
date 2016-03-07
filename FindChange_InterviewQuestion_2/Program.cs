@@ -8,7 +8,25 @@ namespace FindChange_InterviewQuestion_2
     {
         static void Main(string[] args)
         {
-            string          pathToFile      = @"C:\Users\User\Desktop\InterviewQuestions\classifierHOG - Copy1.mat";
+
+            // Input check
+            if (args.Length == 0)
+            { 
+                Console.WriteLine("Missing file path argument");
+                Console.ReadLine();
+                return;
+            }
+            else
+            {
+                if (!File.Exists(args[0]))
+                {
+                    Console.WriteLine("Invalid path, file missing");
+                    return;
+                }
+            }
+
+
+            string          pathToFile      = args[0];
 			List<byte[]>    previousState   = null;
 			List<byte[]>    currentState    = null;
             int             changePosition;
