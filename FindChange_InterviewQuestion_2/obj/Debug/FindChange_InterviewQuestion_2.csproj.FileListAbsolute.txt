@@ -10,3 +10,9 @@ C:\Users\matan\Documents\Visual Studio 2015\Projects\FindChange_InterviewQuestio
 C:\Users\matan\Documents\Visual Studio 2015\Projects\FindChange_InterviewQuestion_2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.csprojResolveAssemblyReference.cache
 C:\Users\matan\Documents\Visual Studio 2015\Projects\FindChange_InterviewQuestion_2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.exe
 C:\Users\matan\Documents\Visual Studio 2015\Projects\FindChange_InterviewQuestion_2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.pdb
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\bin\Debug\FindChange_InterviewQuestion_2.exe.config
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.pdb
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\bin\Debug\FindChange_InterviewQuestion_2.exe
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\bin\Debug\FindChange_InterviewQuestion_2.pdb
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.csprojResolveAssemblyReference.cache
+C:\Users\User\Documents\Visual Studio 2015\Projects\IntQuestions_Q2\FindChange_InterviewQuestion_2\obj\Debug\FindChange_InterviewQuestion_2.exe

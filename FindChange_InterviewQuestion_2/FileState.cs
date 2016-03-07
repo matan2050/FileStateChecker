@@ -34,8 +34,8 @@ namespace FindChange_InterviewQuestion_2
         #region PUBLIC_METHODS
         /// <summary>
         /// Creates a state file for the tracked file.
-        /// state is a key value pair containing each interval in the desired resolution
-        /// and the appropriate md5 hash for that interval
+        /// state is a set of hash codes that relates to each 'stateResolution'
+        /// range in the file, outputted one after the other
         /// </summary>
         public List<byte[]> GenerateState(bool saveToStateFile)
         {
@@ -46,14 +46,7 @@ namespace FindChange_InterviewQuestion_2
             long            localEndPos;
 
 
-			var stateFileMode = FileMode.Create;
-			if (File.Exists(pathToStateFile))
-			{
-				stateFileMode = FileMode.Open;
-			}
-
-
-            using (var fileStateStream = new FileStream(pathToStateFile, stateFileMode))
+            using (var fileStateStream = new FileStream(pathToStateFile, FileMode.OpenOrCreate))
             {
                 using (var fileStream = new FileStream(pathToFile, FileMode.Open))
                 {
@@ -78,6 +71,10 @@ namespace FindChange_InterviewQuestion_2
                 }
             }
 
+            if (!saveToStateFile)
+            {
+                File.Delete(pathToStateFile);
+            }
 			return stateHashList;
 		}
 
@@ -95,7 +92,7 @@ namespace FindChange_InterviewQuestion_2
 
             using (var fileStream = new FileStream(pathToStateFile, FileMode.Open))
             {
-                for (currByteIndex = 0; currByteIndex < stateFileInf.Length; currByteIndex += 128)
+                for (currByteIndex = 0; currByteIndex < stateFileInf.Length; currByteIndex += 16)
                 {
                     fileStream.Position = currByteIndex;
                     currHash = new byte[128];
@@ -107,13 +104,36 @@ namespace FindChange_InterviewQuestion_2
         }
 
 
-		public long CompareHashLists(ref List<byte[]> hashSet1, ref List<byte[]> hashSet2)
+        /// <summary>
+        /// Outputs a list of hash codes to the path predefined
+        /// to the state file
+        /// </summary>
+        /// <param name="stateFileHashList">List of byte arrays (hash codes)</param>
+        public void WriteStateFile(List<byte[]> stateFileHashList)
+        {
+            using (var fileStream = new FileStream(pathToStateFile, FileMode.OpenOrCreate))
+            {
+                foreach (var currRangeHash in stateFileHashList)
+                {
+                    fileStream.Write(currRangeHash, 0, currRangeHash.Length);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Compares two hash lists and return first different hash position in list
+        /// </summary>
+        /// <param name="hashSet1">First set of hash codes (list)</param>
+        /// <param name="hashSet2">Second set of hash codes (list)</param>
+        /// <returns>Index of the first different hash code</returns>
+		public int CompareHashLists(ref List<byte[]> hashSet1, ref List<byte[]> hashSet2)
 		{
 			int		hashSet1Size        = hashSet1.Count;
 			int		hashSet2Size        = hashSet2.Count;
 			int		numHashesToCheck    = Math.Min(hashSet1Size, hashSet2Size);
 
-			long    firstDiffPosition = -1;
+			int    firstDiffPosition = -1;
 
 			for (int i = 0; i < numHashesToCheck; i++)
 			{
@@ -121,26 +141,51 @@ namespace FindChange_InterviewQuestion_2
 				byte[]	currHash2Element	= hashSet2[i];
 
 				int		currHashDiff;
+                bool    firstDiffFound  = false;
 
-				for (int j = 0; j < 128; j++)
+				for (int j = 0; j < 16; j++)
 				{
 					currHashDiff = (int)(currHash1Element[j] - currHash2Element[j]);
 
 					if (currHashDiff != 0)
 					{
 						firstDiffPosition = i;
+                        firstDiffFound = true;
 						break;
 					}
 				}
+
+                if (firstDiffFound)
+                {
+                    break;
+                }
 			}
 
 			return firstDiffPosition;
 		}
+
+
+        public long[] HashPositionToRange(int hashPosition)
+        {
+            long[]      range           = new long[2];
+            int         rangesCounter   = 0;
+
+            for (int i = 0; i < fileSizeBytes; i += stateResolution)
+            {
+                if (rangesCounter == hashPosition)
+                {
+                    range[0] = i;
+                    range[1] = i + stateResolution;
+                }
+                rangesCounter += 1;
+            }
+
+            return range;
+        }
 		#endregion
 
 
 		#region PRIVATE_METHODS
-
 		/// <summary>
 		/// Takes a path string and replaces its 3 letter extension 
 		/// </summary>
@@ -182,13 +227,25 @@ namespace FindChange_InterviewQuestion_2
 		{
 			get
 			{
-				return PathToStateFile;
+				return pathToStateFile;
 			}
 			set
 			{
 				pathToStateFile = value;
 			}
 		}
+
+        public int StateResolution
+        {
+            get
+            {
+                return stateResolution;
+            }
+            set
+            {
+                stateResolution = value;
+            }
+        }
 		#endregion
 	}
 }
