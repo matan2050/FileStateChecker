@@ -29,7 +29,7 @@ namespace FindChange_InterviewQuestion_2
             string          pathToFile      = args[0];
 			List<byte[]>    previousState   = null;
 			List<byte[]>    currentState    = null;
-            int             changePosition;
+			int             firstDiff;
 
             FileState fs = new FileState(pathToFile, 4 * 1024 * 1024);
 
@@ -42,16 +42,22 @@ namespace FindChange_InterviewQuestion_2
 
             if (previousState != null)
             {
-                changePosition = fs.CompareHashLists(ref previousState, ref currentState);
+				firstDiff = fs.CompareHashLists(ref previousState, ref currentState);
 
-                if (changePosition == -1)
+                if (firstDiff == -1)
                 {
                     Console.WriteLine("File is identical to previous version");
                 }
                 else
                 {
-                    long[] range = fs.HashPositionToRange(changePosition);
-                    Console.WriteLine("File changed in between {0} and {1} Bytes", range[0], range[1]);
+					List<long[]> ranges = fs.HashPositionToRange(firstDiff);
+
+					Console.WriteLine("File changed in between byte ranges:");
+					for (int i = 0; i < ranges.Count; i++)
+					{
+						long[] currentRange = ranges[i];
+						Console.WriteLine("{0}, {1}", currentRange[0], currentRange[1]);
+					}
                 }
             }
             else

@@ -129,11 +129,11 @@ namespace FindChange_InterviewQuestion_2
         /// <returns>Index of the first different hash code</returns>
 		public int CompareHashLists(ref List<byte[]> hashSet1, ref List<byte[]> hashSet2)
 		{
-			int		hashSet1Size        = hashSet1.Count;
-			int		hashSet2Size        = hashSet2.Count;
-			int		numHashesToCheck    = Math.Min(hashSet1Size, hashSet2Size);
-
-			int    firstDiffPosition = -1;
+			int         firstDiffHashIndex  = -1;
+			int			hashSet1Size        = hashSet1.Count;
+			int			hashSet2Size        = hashSet2.Count;
+			int			numHashesToCheck    = Math.Min(hashSet1Size, hashSet2Size);
+			bool        diffFoundFlag       = false;
 
             // go over all hash codes to check for difference
 			for (int i = 0; i < numHashesToCheck; i++)
@@ -142,7 +142,6 @@ namespace FindChange_InterviewQuestion_2
 				byte[]	currHash2Element	= hashSet2[i];
 
 				int		currHashDiff;
-                bool    firstDiffFound  = false;
 
                 // go over all hash code's elements and subtract
 				for (int j = 0; j < 16; j++)
@@ -151,26 +150,26 @@ namespace FindChange_InterviewQuestion_2
 
 					if (currHashDiff != 0)
 					{
-						firstDiffPosition = i;
-                        firstDiffFound = true;
+						firstDiffHashIndex = i;
+						diffFoundFlag = true;
 						break;
 					}
 				}
 
-                if (firstDiffFound)
-                {
-                    break;
-                }
+				if (diffFoundFlag)
+				{
+					break;
+				}
 			}
 
             // if no diff found in original size, and hash lists are of different sizes,
             // there was an addition in the end of the file
-            if ((firstDiffPosition == -1) && (hashSet1Size != hashSet2Size))
+            if ((diffFoundFlag) && (hashSet1Size != hashSet2Size))
             {
-                firstDiffPosition = hashSet1Size + 1;
-            }
+				firstDiffHashIndex = hashSet1Size + 1;
+			}
 
-			return firstDiffPosition;
+			return firstDiffHashIndex;
 		}
 
 
@@ -179,22 +178,33 @@ namespace FindChange_InterviewQuestion_2
         /// </summary>
         /// <param name="hashPosition">Hash code position as returned from comparison function</param>
         /// <returns>Int array of byte range</returns>
-        public long[] HashPositionToRange(int hashPosition)
+        public List<long[]> HashPositionToRange(int hashPosition)
         {
-            long[]      range           = new long[2];
-            int         rangesCounter   = 0;
+			List<long[]>	allRanges       = new List<long[]>();
+            int				rangesCounter   = 0;
 
             for (int i = 0; i < fileSizeBytes; i += stateResolution)
             {
-                if (rangesCounter == hashPosition)
-                {
-                    range[0] = i;
-                    range[1] = i + stateResolution;
+                if (rangesCounter >= hashPosition)
+				{
+					long[] range = new long[2];
+					range[0] = i;
+
+					if (i + stateResolution > fileSizeBytes)
+					{
+						range[1] = fileSizeBytes;
+					}
+					else
+					{
+						range[1] = i + stateResolution;
+					}
+                    
+					allRanges.Add(range);
                 }
-                rangesCounter += 1;
+                rangesCounter++;
             }
 
-            return range;
+            return allRanges;
         }
 		#endregion
 
