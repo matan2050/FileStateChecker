@@ -46,7 +46,7 @@ namespace FindChange_InterviewQuestion_2
 
                 if (changePosition == -1)
                 {
-                    Console.WriteLine("File are identical");
+                    Console.WriteLine("File is identical to previous version");
                 }
                 else
                 {

@@ -209,9 +209,9 @@ namespace FindChange_InterviewQuestion_2
         {
             string      replacedString;
             int         dotPosition         = filePath.IndexOf('.');
-            string      extension           = filePath.Substring(dotPosition+1, 3);
+            string      untilExtension      = filePath.Substring(0, dotPosition - 1);
 
-            replacedString = filePath.Replace(extension, ext);
+			replacedString = untilExtension + ".state";
 
             return replacedString;
         }
